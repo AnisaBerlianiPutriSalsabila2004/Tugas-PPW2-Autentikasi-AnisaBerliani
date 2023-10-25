@@ -99,7 +99,7 @@ class LoginRegisterController extends Controller
     public function dashboard()
     {
         if (Auth::check()) {
-            return view('auth.dashboard');
+            return view('dashboard');
         }
 
         return redirect()->route('login')
