@@ -103,7 +103,8 @@ class LoginRegisterController extends Controller
     public function dashboard()
     {
         if (Auth::check()) {
-            return view('dashboard');
+            $accounts = User::latest()->paginate(3);
+            return view('auth.dashboard', compact('accounts'));
         }
 
         return redirect()->route('login')

@@ -1,4 +1,4 @@
-@extends('auth.logRegisLayouts')
+@extends('auth.layouts')
 
 @section('content')
 
