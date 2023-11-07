@@ -8,8 +8,17 @@
         <div class="card">
             <div class="card-header">Register</div>
             <div class="card-body">
-                <form action="{{ route('store') }}" method="post">
+                <form action="{{ route('store') }}" method="post" enctype="multipart/form-data">
                     @csrf
+
+                    <div class="mb-3 row">
+                        <label class="font-weight-bold">Foto Profil</label>
+                        <input type="file" class="form-control" id="image_profile" name="image_profile">
+                        @if ($errors->has('image_profile'))
+                        <span class="text-danger">{{ $errors->first('image_profile') }}</span>
+                        @endif
+                    </div>
+
                     <div class="mb-3 row">
                         <label for="name" class="col-md-4 col-form-label text-md-end text-start">Name</label>
                         <div class="col-md-6">
