@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginRegisterController;
 use App\Http\Controllers\SendEmailController;
+use App\Http\Controllers\GalleryController;
 
 
 /*
@@ -26,10 +27,15 @@ Route::controller(LoginRegisterController::class)->group(function() {
     Route::get('/login', 'login')->name('login');
     Route::post('/authenticate', 'authenticate')->name('authenticate');
     Route::get('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboards', 'dashboards')->name('dashboards');
+
     Route::post('/logout', 'logout')->name('logout');
+
     Route::get('/delete/{id}', 'delete')->name('delete');
-Route::get('/edit/{id}', 'edit')->name('edit');
-Route::post('/update/{id}', 'update')->name('update');
+    Route::get('/edit/{id}', 'edit')->name('edit');
+    Route::post('/update/{id}', 'update')->name('update');
+
+    Route::resource('gallery', GalleryController::class);
 });
 
 Route::get('/send-mail', [SendEmailController::class,'index'])->name('kirim-email');

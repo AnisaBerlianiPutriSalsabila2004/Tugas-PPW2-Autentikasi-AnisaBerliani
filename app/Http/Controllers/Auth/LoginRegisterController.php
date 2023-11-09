@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\registerConfirmation;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 
 class LoginRegisterController extends Controller
 {
@@ -45,35 +47,47 @@ class LoginRegisterController extends Controller
             'name' => 'required|string|max:250',
             'email' => 'required|email|max:250|unique:users',
             'password' => 'required|min:8|confirmed',
-            'image_url' => 'image|nullable|max:1999'
+            'image_profile' => 'image|nullable|max:1999'
         ]);
 
-        if($request->hasFile('image_url')){
-            // $filenameWithExt = $request->file('image_profile')->getClientOriginalName();
-            // $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            // $extension = $request->file('image_profile')->getClientOriginalExtension();
-            // $filenameSimpan = $filename . '_' . time() . '.' . $extension;
-            // $path = $request->file('image_profile')->storeAs('public/photos', $filenameSimpan);
+        if($request->hasFile('image_profile')){
 
-            $isi_gambar = $request->file('image_url');
-            $fileName = $isi_gambar->hashName();
-            // Image::configure(['driver' => 'imagick']);
-            // $image = Image::make($isi_gambar)->resize(100, 100); //DI BAGIAN INI
-            $isi_gambar->storeAs('public/photos', $fileName);
+            $filenameWithExt = $request->file('image_profile')->getClientOriginalName();
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $extension = $request->file('image_profile')->getClientOriginalExtension();
+            $filenameSimpan = $filename . "_" . time() . "." . $extension;
+            $image = Image::make($request->file('image_profile'));
+            $image->save('photos/'.$filenameSimpan);
 
-            
+            $pathSquare = ('photos/'.$filenameSimpan);
+            $image->fit(250,250)->save($pathSquare);
+
+            $image = Image::make($request->file('image_profile'));
+
+            $pathThumbnail = ('photos/'.$filenameSimpan);
+            $image->fit(350,200)->save($pathThumbnail);
+
+
+            // $isi_gambar = $request->file('image_profile');
+            // $fileName = $isi_gambar->hashName();
+            // $image = Image::make($isi_gambar)->fit(100, 100);
+            // $image->save('storage/photos/'.$filenameSimpan);
+
+
             $userAccount = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => Hash::make($request->password),
-                'image_url' => $fileName
+                'image_profile' => $filenameSimpan
             ]);
-    
+
             $credentials = $request->only('email', 'password');
             Auth::attempt($credentials);
             $request->session()->regenerate();
-            return redirect()->route('dashboard', $userAccount->id)
+            // return redirect()->route('dashboard', $userAccount->id)
+            //     ->withSuccess('You have successfully registered & logged in!');
+            return redirect()->route('dashboards')
                 ->withSuccess('You have successfully registered & logged in!');
         }else{
             return redirect()->route('register')
@@ -133,6 +147,11 @@ class LoginRegisterController extends Controller
             ])->onlyInput('email');
     }
 
+    public function dashboards(){
+        $datas = User::all();
+        return view('auth.dashboard', compact('datas'));
+    }
+
     /**
      * Log out the user from application.
      *
@@ -148,51 +167,67 @@ class LoginRegisterController extends Controller
             ->withSuccess('You have logged out successfully!');;
     }
 
-    public function edit(String $id){
-        $accounts = User::where('id', $id)->first();
+    public function edit(Request $request, String $id){
+
+        $accounts = User::find($id)->first();
         return view('auth.edit', compact('accounts'));
+
     }
 
     public function update(Request $request, String $id){
-        
+
         $accounts = User::findOrFail($id);
 
-        if ($request->hasFile('image_url')) {
+        if ($request->hasFile('image_profile')) {
 
-            $image = $request->file('image_url');
+            $filenameWithExt = $request->file('image_profile')->getClientOriginalName();
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $extension = $request->file('image_profile')->getClientOriginalExtension();
+            $filenameSimpan = $filename . "_" . time() . "." . $extension;
+            $image = Image::make($request->file('image_profile'));
+            $image->save('photos/'.$filenameSimpan);
 
-            $image->storeAs('public/photos', $image->hashName());
+            $pathSquare = ('photos/'.$filenameSimpan);
+            $image->fit(250,250)->save($pathSquare);
 
-            Storage::delete('public/photos/'.$accounts->image_url);
+            $image = Image::make($request->file('image_profile'));
+
+            $pathThumbnail = ('photos/'.$filenameSimpan);
+            Storage::delete('photos/'.$accounts->image_profile);
+            $image->fit(350,200)->save($pathThumbnail);
 
             $accounts->update([
-                'image_url'     => $image->hashName(),
+                'image_profile'     => $filenameSimpan,
                 'name'   => $request->name,
                 'email'   => $request->email,
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect()->route('dashboards')
                 ->withSuccess('Profil berhasil terupdate.');
+
         } else {
+
             $accounts->update([
                 'name'   => $request->name,
                 'email'   => $request->email,
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect()->route('dashboards')
                     ->withSuccess('Profil berhasil terupdate.');
             }
     }
 
     public function delete(String $id){
+
         $accounts = User::find($id);
-        Storage::delete('public/photos/'.$accounts->image_url);
-        
+        Storage::delete('photos/'.$accounts->image_profile);
+        // $accounts->delete();
+
         $accounts->update([
-            'image_url'     => "",
+            'image_profile'     => null,
         ]);
 
-        return redirect()->route('dashboard')
+        return redirect()->route('dashboards')
                 ->withSuccess('gambar berhasil di hapus.');
     }
 }
