@@ -35,7 +35,14 @@ Route::controller(LoginRegisterController::class)->group(function() {
     Route::get('/edit/{id}', 'edit')->name('edit');
     Route::post('/update/{id}', 'update')->name('update');
 
-    Route::resource('gallery', GalleryController::class);
+});
+Route::controller(GalleryController::class)->group(function() {
+    Route::get('/gallery', 'index')->name('gallery.index');
+    Route::get('/gallery/create', 'create')->name('gallery.create');
+    Route::post('/gallery/store', 'store')->name('gallery.store');
+    Route::get('/gallery/edit/{id}', 'edit')->name('gallery.edit');
+    Route::post('/gallery/update/{id}', 'update')->name('gallery.update');
+    Route::get('/destroy/{id}', 'destroy')->name('gallery.destroy');
 });
 
 Route::get('/send-mail', [SendEmailController::class,'index'])->name('kirim-email');

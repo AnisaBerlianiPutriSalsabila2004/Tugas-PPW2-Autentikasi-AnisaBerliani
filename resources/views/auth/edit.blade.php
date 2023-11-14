@@ -1,4 +1,4 @@
-@extends('auth.logRegisLayouts')
+@extends('auth.layouts')
 
 @section('content')
 
@@ -7,7 +7,7 @@
     <div class="card-header">
         <div class="float-start">Edit Projek</div>
         <div class="float-end">
-            <a href="{{ route('dashboard') }}" class="btn btn-primary btn-sm">&larr; Back</a>
+            <a href="{{ route('dashboards') }}" class="btn btn-primary btn-sm">&larr; Back</a>
         </div>
     </div>
 
@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        
+
         <div class="mb-3 row">
             <label for="email" class="col-md-4 col-form-label text-md-end text-start">Email : </label>
             <div class="col-md-6">
@@ -42,11 +42,11 @@
 
         <div class="form-group">
             <label class="font-weight-bold">Foto Profil: </label>
-            <input type="file" class="form-control @error('image_url') is-invalid @enderror"
-                name="image_url" id="image_url">
+            <input type="file" class="form-control @error('image_profile') is-invalid @enderror"
+                name="image_profile" id="image_profile">
 
             <!-- error message untuk title -->
-            @error('image_url')
+            @error('image_profile')
             <div class="alert alert-danger mt-2">
                 {{ $message }}
             </div>
